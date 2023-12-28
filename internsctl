@@ -1,0 +1,89 @@
+
+getversion() {
+    echo "internsctl v0.1.0"
+}
+
+
+gethelp() {
+    echo "  cpu getinfo"
+    echo "  memory getinfo "
+    echo "  --version "
+    echo "  --help "
+    echo " user create <username>"
+    echo "  user list"    
+}
+
+get_cpu_info() {
+    lscpu
+}
+
+
+get_memory_info() {
+    free
+}
+
+create_user() {
+    if [ -z "$2" ]; then
+       
+        exit 1
+    fi
+
+    username="$2"
+    
+ 
+    useradd -m "$username"
+
+    echo "$username:password123" | chpasswd
+
+    echo "User $username created successfully."
+}
+
+list_users() {
+    getent passwd | grep -E '/bin/(bash|sh)$' | cut -d: -f1
+}
+
+case "$1" in
+    --version)
+        getversion
+        ;;
+    --help)
+        gethelp
+        ;;
+    cpu)
+        case "$2" in
+           getinfo)
+                get_cpu_info
+                ;;
+            *)
+                echo "Invalid subcommand for 'cpu'"
+                ;;
+        esac
+        ;;
+    memory)
+        case "$2" in
+            getinfo)
+                get_memory_info
+                ;;
+            *)
+                echo "Invalid subcommand for 'memory'"
+                ;;
+        esac
+        ;;
+   user)
+        case "$2" in
+            create)
+                create_user "$@"
+                ;;
+              list)
+                list_users
+                ;;
+            *)
+                echo "Invalid subcommand for 'user'"
+                ;;
+        esac
+        ;;
+   
+    *)
+        echo "Invalid option. Use 'internsctl --help' for usage information."
+        ;;
+esac
